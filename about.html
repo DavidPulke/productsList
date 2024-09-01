@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Cart Manager</title>
+    <link rel="stylesheet" href="about.css">
+    <link rel="Icon" href="./gallery/Icon David.jpg">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html"><img class="cart" src="./gallery/cartSmall.png" alt="small cart"></a></a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>About - Cart Manager</h1>
+        <section class="about-section">
+            <h2>JavaScript Code Explanation</h2>
+            <div class="code-wrapper">
+                <pre><code class="highlight">
+<span class="explanation-text">// Class managing the cart functionality</span>
+class CartManager {
+    constructor() {
+        <span class="explanation-text">// Initialize HTML elements and buttons</span>
+        this.cartContainer = document.getElementById('cart-container');
+        this.addProductButton = document.getElementById('add-product-button');
+        this.productFormContainer = document.getElementById('product-form-container');
+        this.productForm = document.getElementById('product-form');
+        this.submitProductButton = document.getElementById('submit-product-button');
+        this.cancelProductButton = document.getElementById('cancel-product-button');
+        this.totalPriceElement = document.getElementById('total-price');
+        this.editingIndex = null; <span class="explanation-text">// Index for editing a product</span>
+        this.currentImageIndex = null; <span class="explanation-text">// Index for editing image</span>
+
+        <span class="explanation-text">// Bind functions to buttons using onclick</span>
+        this.addProductButton.onclick = this.showProductForm.bind(this);
+        this.submitProductButton.onclick = this.addProduct.bind(this);
+        this.cancelProductButton.onclick = this.hideProductForm.bind(this);
+        document.getElementById('product-image').onchange = this.handleImageUpload.bind(this);
+
+        <span class="explanation-text">// Load the cart when the page loads</span>
+        this.loadCart();
+    }
+
+    <span class="explanation-text">// Load cart data from localStorage and display items</span>
+    loadCart() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        this.cartContainer.innerHTML = '';
+        let total = 0;
+        cart.forEach((item, index) => {
+            total += item.price;
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'cart-item';
+            itemDiv.innerHTML = `
+                img src="${item.image || 'placeholder.jpg'}" alt="Product Image" onclick="cartManager.editImage(${index})">
+                <div>
+                    <h3>${item.name}</h3>
+                    <p>${item.description}</p>
+                    <p>Price: $${item.price.toFixed(2)}</p>
+                    button class="edit" onclick="cartManager.editProduct(${index})">Edit</button>
+                    button onclick="cartManager.removeProduct(${index})">Remove</button>
+                /div>
+            `;
+            this.cartContainer.appendChild(itemDiv);
+        });
+        this.totalPriceElement.textContent = total.toFixed(2);
+    }
+
+    <span class="explanation-text">// Save cart data to localStorage and reload the cart</span>
+    saveCart(cart) {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        this.loadCart();
+    }
+
+    <span class="explanation-text">// Add or edit a product in the cart based on the editing index</span>
+    async addProduct(event) {
+        event.preventDefault(); <span class="explanation-text">// Prevent default form submission</span>
+        const name = document.getElementById('product-name').value;
+        const description = document.getElementById('product-description').value;
+        const price = parseFloat(document.getElementById('product-price').value);
+        if (isNaN(price) || price < 0) {
+            alert('Invalid price entered.');
+            return;
+        }
+        const fileInput = document.getElementById('product-image');
+        const image = fileInput.files.length > 0 ? await this.getBase64Image(fileInput.files[0]) : '';
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        if (this.editingIndex !== null) {
+            cart[this.editingIndex] = { 
+                name, 
+                description, 
+                price, 
+                image: cart[this.editingIndex].image // Preserve existing image if editing a product
+            };
+            this.editingIndex = null;
+        } else {
+            cart.push({ name, description, price, image });
+        }
+        
+        this.saveCart(cart);
+        this.hideProductForm();
+    }
+
+    <span class="explanation-text">// Convert image file to Base64 URL</span>
+    async getBase64Image(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    <span class="explanation-text">// Edit an existing product</span>
+    editProduct(index) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const item = cart[index];
+        document.getElementById('product-name').value = item.name;
+        document.getElementById('product-description').value = item.description;
+        document.getElementById('product-price').value = item.price;
+        document.getElementById('product-image').value = ''; // Reset file input
+        document.getElementById('form-title').textContent = 'Edit Product';
+        this.productFormContainer.classList.remove('hidden');
+        this.editingIndex = index;
+    }
+
+    <span class="explanation-text">// Remove a product from the cart</span>
+    removeProduct(index) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cart.splice(index, 1);
+        this.saveCart(cart);
+    }
+
+    <span class="explanation-text">// Open file dialog for editing image</span>
+    editImage(index) {
+        this.currentImageIndex = index;
+        document.getElementById('product-image').click();
+    }
+
+    <span class="explanation-text">// Handle image file upload</span>
+    handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                if (this.currentImageIndex !== null) {
+                    cart[this.currentImageIndex].image = reader.result;
+                    this.saveCart(cart);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    <span class="explanation-text">// Show the product form for adding new products</span>
+    showProductForm() {
+        this.productFormContainer.classList.remove('hidden');
+        document.getElementById('form-title').textContent = 'Add New Product';
+    }
+
+    <span class="explanation-text">// Hide the product form</span>
+    hideProductForm() {
+        this.productFormContainer.classList.add('hidden');
+        this.productForm.reset();
+    }
+}
+
+// Create an instance of CartManager when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    window.cartManager = new CartManager();
+});
+                </code></pre>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 DavidPolak. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

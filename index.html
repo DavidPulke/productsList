@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="Icon" href="./gallery/Icon David.jpg">
+</head>
+
+<body>
+    <header>
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="index.html"><img class="cart" src="./gallery/cartSmall.png" alt="small cart"></a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </nav>
+        </header>
+    </header>
+    <main>
+        <div id="cart-container"></div>
+        <button id="add-product-button">Add Product</button>
+        <div id="total-container">
+            <h2>Total: $<span id="total-price">0.00</span></h2>
+        </div>
+    </main>
+
+    <!-- Form for adding/editing product -->
+    <div id="product-form-container" class="hidden">
+        <h2 id="form-title">Add Product</h2>
+        <form id="product-form">
+            <label for="product-name">Name:</label>
+            <input type="text" id="product-name" required>
+
+            <label for="product-description">Description:</label>
+            <input type="text" id="product-description" required>
+
+            <label for="product-price">Price ($):</label>
+            <input type="number" id="product-price" step="0.01" min="0" required>
+
+            <label for="product-image">Image:</label>
+            <input type="file" id="product-image">
+
+            <button type="submit" id="submit-product-button">Submit</button>
+            <button type="button" id="cancel-product-button">Cancel</button>
+        </form>
+    </div>
+
+
+    <footer>
+        <p>&copy; 2024 DavidPolak. All rights reserved.</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+
+</html>
