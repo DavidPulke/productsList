@@ -150,6 +150,11 @@ footer {
     margin-right: 20px;
 }
 
+.cart-item img:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
 .cart-item button {
     background: #dc3545;
     color: #fff;
